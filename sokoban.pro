@@ -24,13 +24,13 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 
 
 SOURCES += main.cpp\
-    sokoban.cpp \
-    settings.cpp \
-    drower.cpp \
-    level.cpp
+    src/sokoban.cpp \
+    src/settings.cpp \
+    src/drower.cpp \
+    src/level.cpp
 
 HEADERS  += \
-    sokoban.h \
-    settings.h \
-    drower.h \
-    level.h
+    include/sokoban.h \
+    include/settings.h \
+    include/drower.h \
+    include/level.h
