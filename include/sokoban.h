@@ -45,13 +45,18 @@ private:
     void drawPlayerStat();
     void drawPlay();
 
+    void keyReleasedMenu(int);
+    void keyReleasedMenuSelectLevel(int);
+    void keyReleasedMenuPlayerStat(int);
+    void keyReleasedPlay(int);
+
 public:
     virtual ~Sokoban(){}
 
 private:
     int m_selectLevelIndex;
     State m_state{State::MENU};
-    Menu m_currentMenu;
+    Menu m_currentMenu{Menu::PLAY};
 
     std::vector<std::pair<Menu, std::string> > m_menu;
 };

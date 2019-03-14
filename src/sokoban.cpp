@@ -1,7 +1,42 @@
 #include <QKeyEvent>
 
-#include "sokoban.h"
-#include "settings.h"
+#include "include/sokoban.h"
+#include "include/settings.h"
+
+Sokoban::State menuToState(const Sokoban::Menu& menu)
+{
+    switch (menu) {
+    case Sokoban::Menu::START:
+    case Sokoban::Menu::END:
+        return Sokoban::State::MENU;
+    case Sokoban::Menu::SELECT_LEVEL:
+        return Sokoban::State::SELECT_LEVEL;
+    case Sokoban::Menu::PLAY:
+        return Sokoban::State::PLAY;
+    case Sokoban::Menu::PLAYER_STAT:
+        return Sokoban::State::PLAYER_STAT;
+    case Sokoban::Menu::EXIT:
+        return Sokoban::State::EXIT;
+    }
+}
+
+Sokoban::Menu operator++ (Sokoban::Menu& menu)
+{
+    menu = Sokoban::Menu(static_cast<int>(menu) + 1);
+    if (menu == Sokoban::Menu::END) {
+        menu = Sokoban::Menu::PLAY;
+    }
+    return menu;
+}
+
+Sokoban::Menu operator-- (Sokoban::Menu& menu)
+{
+    menu = Sokoban::Menu(static_cast<int>(menu) - 1);
+    if (menu == Sokoban::Menu::START) {
+        menu = Sokoban::Menu::EXIT;
+    }
+    return menu;
+}
 
 Sokoban::Sokoban(QWidget* parent)
     : QGLWidget(parent)
@@ -46,8 +81,25 @@ void Sokoban::paintGL()
 
 void Sokoban::keyReleaseEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Escape) {
+//    if (event->key() == Qt::Key_Escape) {
+//        close();
+//    }
+    switch (m_state) {
+    case State::MENU:
+        keyReleasedMenu(event->key());
+        break;
+    case State::SELECT_LEVEL:
+        keyReleasedMenuSelectLevel(event->key());
+        break;
+    case State::PLAYER_STAT:
+        keyReleasedMenuPlayerStat(event->key());
+        break;
+    case State::PLAY:
+        keyReleasedPlay(event->key());
+        break;
+    case State::EXIT:
         close();
+        break;
     }
 }
 
@@ -128,4 +180,75 @@ void Sokoban::drawPlayerStat()
 void Sokoban::drawPlay()
 {
 
+}
+
+void Sokoban::keyReleasedMenu(int key)
+{
+    switch (key) {
+    case Qt::Key_Up:
+        --m_currentMenu;
+        break;
+    case Qt::Key_Down:
+        ++m_currentMenu;
+        break;
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
+        m_state = menuToState(m_currentMenu);
+        break;
+    }
+    updateGL();
+}
+
+void Sokoban::keyReleasedMenuSelectLevel(int key)
+{
+    switch (key) {
+    case Qt::Key_Up:
+        break;
+    case Qt::Key_Down:
+        break;
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
+        break;
+    case Qt::Key_Escape:
+        m_state = State::MENU;
+        break;
+    }
+    updateGL();
+}
+
+void Sokoban::keyReleasedMenuPlayerStat(int key)
+{
+    switch (key) {
+    case Qt::Key_Up:
+        break;
+    case Qt::Key_Down:
+        break;
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
+        break;
+    case Qt::Key_Escape:
+        m_state = State::MENU;
+        break;
+    }
+    updateGL();
+}
+
+void Sokoban::keyReleasedPlay(int key)
+{
+    switch (key) {
+    case Qt::Key_Up:
+        break;
+    case Qt::Key_Down:
+        break;
+    case Qt::Key_Left:
+        break;
+    case Qt::Key_Right:
+        break;
+    case Qt::Key_Escape:
+        m_state = State::MENU;
+        break;
+    case Qt::Key_R:
+        break;
+    }
+    updateGL();
 }
