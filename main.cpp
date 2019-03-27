@@ -1,7 +1,7 @@
 #include <QApplication>
 
-#include "sokoban.h"
-#include "settings.h"
+#include "include/sokoban.h"
+#include "include/settings.h"
 
 int main(int argc, char *argv[])
 {
