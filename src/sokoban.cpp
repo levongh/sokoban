@@ -1,7 +1,7 @@
 #include <QKeyEvent>
 
-#include "include/sokoban.h"
-#include "include/settings.h"
+#include "../include/sokoban.h"
+#include "../include/settings.h"
 
 Sokoban::State menuToState(const Sokoban::Menu& menu)
 {
@@ -59,6 +59,7 @@ void Sokoban::initializeGL()
     glDisable(GL_SMOOTH);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_TEXTURE_2D);
+    Settings::getInstance().load();
 }
 
 void Sokoban::resizeGL(int width, int height)
@@ -81,9 +82,6 @@ void Sokoban::paintGL()
 
 void Sokoban::keyReleaseEvent(QKeyEvent *event)
 {
-//    if (event->key() == Qt::Key_Escape) {
-//        close();
-//    }
     switch (m_state) {
     case State::MENU:
         keyReleasedMenu(event->key());
@@ -157,10 +155,10 @@ void Sokoban::drawMenu()
     for (size_t i = 0; i < m_menu.size(); ++i) {
         if (i == static_cast<size_t>(m_currentMenu)) {
             qglColor(Qt::red);
-            renderText(x, y, m_menu[i].second.c_str(), fontSelected);
+            renderText(static_cast<int>(x), static_cast<int>(y), m_menu[i].second.c_str(), fontSelected);
         } else {
             qglColor(Qt::white);
-            renderText(x, y, m_menu[i].second.c_str(), font);
+            renderText(static_cast<int>(x), static_cast<int>(y), m_menu[i].second.c_str(), font);
         }
         y += dy;
     }
@@ -169,7 +167,50 @@ void Sokoban::drawMenu()
 
 void Sokoban::drawMenuSelectLevel()
 {
+    auto& settings = Settings::getInstance();
+    static auto height = settings.screenHeight() / 3.f;
+    static auto width = settings.getInstance().screenWidth() / 2.f;
 
+    const std::vector<std::pair<unsigned, bool> >& levels = settings.getAvailableLevels();
+    int lCount = static_cast<int>(levels.size());
+
+    if (levels.empty()) {
+        return;
+    }
+    static auto font = QFont("Comic Sans MS", 15);
+    static auto fontSelected = QFont("Comic Sans MS", 20);
+    fontSelected.setBold(true);
+
+    int tmp = (m_selectLevelIndex - 6);
+    int start = tmp < 0 ? 0 : tmp;
+
+    tmp = start + 6;
+    int end = (tmp < lCount) ? tmp : lCount - 1;
+
+    auto x = width - 100;
+    auto y = height;
+    auto dy = 25.f;
+
+    for (int i = start; i <= end; ++i) {
+        const auto& lvl = levels[i].first;
+        const auto& isLock = levels[i].second;
+        //const auto& [lvl, isLock] = levels[i];
+
+        QString item = "level " + QString::number(lvl);
+        QFont& rf = (i == m_selectLevelIndex) ? fontSelected : font;
+
+        Qt::GlobalColor color = Qt::gray;
+        if (i == m_selectLevelIndex) {
+            if (isLock == true)
+                color = Qt::red;
+        } else {
+            if (isLock == true)
+                color = Qt::white;
+        }
+        qglColor(color);
+        renderText(static_cast<int>(x), static_cast<int>(y), item, rf);
+        y += dy;
+    }
 }
 
 void Sokoban::drawPlayerStat()
@@ -201,10 +242,21 @@ void Sokoban::keyReleasedMenu(int key)
 
 void Sokoban::keyReleasedMenuSelectLevel(int key)
 {
+    const auto levels = Settings::getInstance().getAvailableLevels();
+    int levelsCount = static_cast<int>(levels.size());
+
     switch (key) {
     case Qt::Key_Up:
+        --m_selectLevelIndex;
+        if (m_selectLevelIndex < 0) {
+            m_selectLevelIndex = 0;
+        }
         break;
     case Qt::Key_Down:
+        ++m_selectLevelIndex;
+        if(m_selectLevelIndex >= levelsCount) {
+            m_selectLevelIndex = levelsCount - 1;
+        }
         break;
     case Qt::Key_Enter:
     case Qt::Key_Return:

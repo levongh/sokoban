@@ -51,10 +51,11 @@ private:
     void keyReleasedPlay(int);
 
 public:
-    virtual ~Sokoban(){}
+    virtual ~Sokoban() override
+    {}
 
 private:
-    int m_selectLevelIndex;
+    int m_selectLevelIndex = 0;
     State m_state{State::MENU};
     Menu m_currentMenu{Menu::PLAY};
 
